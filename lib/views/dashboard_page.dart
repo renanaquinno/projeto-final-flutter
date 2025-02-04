@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maps/views/maps_page.dart';
+import 'package:maps/views/register_page.dart';
 import 'contatos_page.dart'; // Importa a tela de contatos
 
 class DashboardPage extends StatelessWidget {
@@ -36,7 +37,8 @@ class DashboardPage extends StatelessWidget {
                   _buildDashboardButton(
                       Icons.map_sharp, "Mapas", context, MapsPage()),
                   _buildDashboardButton(Icons.plus_one, "Extra", context, null),
-                  _buildDashboardButton(Icons.plus_one, "Extra", context, null),
+                  _buildDashboardButton(
+                      Icons.exit_to_app, "Sair", context, LoginPage()),
                 ],
               ),
             ),
@@ -53,6 +55,11 @@ class DashboardPage extends StatelessWidget {
         if (page != null) {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => page));
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
         }
       },
       child: Container(
@@ -77,6 +84,14 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _logout(BuildContext context) {
+    // Redireciona para a tela de login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 }

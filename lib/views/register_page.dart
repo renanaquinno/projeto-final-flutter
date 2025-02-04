@@ -1,72 +1,100 @@
 import 'package:flutter/material.dart';
-import 'dashboard_page.dart'; // Importa a página do Dashboard
+import 'package:maps/controllers/user_controller.dart';
+import 'package:maps/views/dashboard_page.dart';
 
-class RegisterPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  String? errorMessage;
+class _LoginPageState extends State<LoginPage> {
+  final UserController _controller = UserController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _message = "";
 
-  void register() async {
-    String? error;
+  void _login() async {
+    bool success = await _controller.login(
+        _emailController.text, _passwordController.text);
+    setState(() {
+      if (success) {
+        // Redirecionar para a tela principal (HomePage)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+      } else {
+        // Mostrar mensagem de erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Credenciais inválidas')),
+        );
+      }
+    });
+  }
 
-    error = null;
-
-    /// VERIFICAR ERRP = NULL, FAZER FUNCAO QUE VERIFICA SE CADASTRO FOI BEM SUCEDIDO
-
-    if (error != null) {
-      setState(() {
-        errorMessage = error;
-      });
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardPage()),
-      );
-    }
+  void _register() async {
+    await _controller.addUser(
+        "Usuário", _emailController.text, _passwordController.text);
+    setState(() {
+      _message = "Usuário registrado com sucesso!";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Criar Conta")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+      backgroundColor: Colors.grey[200],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 70),
+              Image.asset(
+                "assets/logo.png",
+                width: 150,
+                height: 150,
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: "Senha",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Senha",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-              obscureText: true,
-            ),
-            if (errorMessage != null)
-              Text(errorMessage!, style: TextStyle(color: Colors.red)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: register,
-              child: Text("Cadastrar"),
-            ),
-          ],
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _login(),
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 100, vertical: 15),
+                    backgroundColor: Colors.yellow),
+                child: const Text("Login"),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _register(),
+                child: const Text("Registrar"),
+              ),
+              Text(_message, style: TextStyle(color: Colors.red)),
+            ],
+          ),
         ),
       ),
     );

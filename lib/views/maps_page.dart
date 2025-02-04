@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:maps/services/database_service.dart';
 
 class MapsPage extends StatefulWidget {
   const MapsPage({super.key});
@@ -11,6 +12,11 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   GoogleMapController? mapController;
+  final ContatoService _databaseService = ContatoService.instance;
+
+  String? _maps_nome = null;
+  String? _maps_latitude = null;
+  String? _maps_longitude = null;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(-5.095424, -42.8146688),
@@ -61,19 +67,25 @@ class _MapsPageState extends State<MapsPage> {
   }
 
   void _carregarMarcadores() {
-    Set<Marker> marcadoresLocal = {};
-    Marker marcadoIfpi = Marker(
-      markerId: MarkerId('Alice Souza'),
-      position: LatLng(-5.088544046019581, -42.81123803149089),
-    );
-    Marker marcadoIfpiSul = Marker(
-      markerId: MarkerId('Bruno Lima'),
-      position: LatLng(-5.101723, -42.813114),
-    );
-    marcadoresLocal.add(marcadoIfpi);
-    marcadoresLocal.add(marcadoIfpiSul);
-    setState(() {
-      _marcadores = marcadoresLocal;
+    _databaseService.getContatos().then((contatos) {
+      Set<Marker> marcadoresLocal = {};
+
+      for (var contato in contatos) {
+        Marker marcador = Marker(
+          markerId: MarkerId(contato.nome), // Nome do contato como ID
+          position: LatLng(
+              double.parse(contato.latitude), double.parse(contato.longitude)),
+          infoWindow: InfoWindow(
+            title: contato.nome,
+            snippet: "Lat: ${contato.latitude}, Lon: ${contato.longitude}",
+          ),
+        );
+        marcadoresLocal.add(marcador);
+      }
+
+      setState(() {
+        _marcadores = marcadoresLocal;
+      });
     });
   }
 
